@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Leaders = require('../models/leaders');
+const authenticate = require('../authenticate');
 
 
 const leadersRouter = express.Router();
@@ -20,7 +21,7 @@ leadersRouter.route('/')
         .catch((err) => next(err));
 })
 
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     Leaders.create(req.body)
         .then((leader) => {
             console.log('leader created', leader);
@@ -31,12 +32,12 @@ leadersRouter.route('/')
         .catch((err) => next(err));
 })
 
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end('Put operation not supported on leaders'); 
 })
 
-.delete((req, res) => {
+.delete(authenticate.verifyUser, (req, res) => {
     Leaders.remove({})
         .then((resp) => {
             res.statusCode = 200;
@@ -58,12 +59,12 @@ leadersRouter.route('/:leaderId')
         .catch((err) => next(err));
 })
 
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end('Post operation not supported on leaders/'+req.params.leaderId); 
 })
 
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     Leaders.findByIdAndUpdate(req.params.leaderId, req.body)
         .then((leader) => {
             res.statusCode = 200;
@@ -73,7 +74,7 @@ leadersRouter.route('/:leaderId')
         .catch((err) => next(err));
 })
 
-.delete((req, res) => {
+.delete(authenticate.verifyUser, (req, res) => {
     Leaders.findByIdAndDelete(req.params.leaderId)
         .then((resp) => {
             res.statusCode = 200;
